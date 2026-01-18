@@ -8,7 +8,7 @@ export const generateStoryContent = async (req: StoryRequest): Promise<StoryResu
   const { title, numScenes, visualStyle, language } = req;
 
   const systemInstruction = `
-    You are PIKHACU.AI ULTIMATE v4, a professional cinematic storytelling architect.
+    You are ANOALABS.AI ULTIMATE v4, a professional cinematic storytelling architect.
     
     BRAIN RULES:
     1. NARRATION (STRICT 10-SECOND LIMIT):
@@ -77,30 +77,42 @@ export const generateStoryContent = async (req: StoryRequest): Promise<StoryResu
   return JSON.parse(jsonStr) as StoryResult;
 };
 
-export const generateAffiliateContent = async (productName: string, customInstructions: string) => {
+export const generateAffiliateContent = async (
+  productName: string, 
+  customInstructions: string, 
+  productImg: string | undefined, 
+  modelImg: string | undefined,
+  style: string,
+  numScenes: number
+) => {
   const systemInstruction = `
-    Kamu adalah TOOLS AFILIATE PRODUK AI di Google AI Studio dengan SISTEM KECEPATAN TINGGI (TURBO ENGINE).
-    Tugas: Menganalisis input visual DIGITAL (AUTO-ANALYSIS) secara instan dan mengunci identitas secara absolut.
+    Kamu adalah ANOALABS UGC TOOL - Expert Afiliasi & Pemasaran Konten.
+    Tugas: Menghasilkan strategi visual UGC dioptimalkan untuk VEO 3.1 & FLOW.
+    
+    Gaya Konten: ${style}
+    Target Jumlah Adegan: ${numScenes}
 
-    ⚡ SISTEM KECEPATAN TINGGI (TURBO ANALYSIS):
-    1. Eksekusi Instan: Analisis gambar dalam milidetik, ambil asumsi cerdas jika deskripsi kurang.
-    2. Digital Precision: Fokus pada ketajaman produk digital (UI, screen, glow, sleek design).
-    3. Zero-Lag Response: Fokus pada hasil akhir yang siap posting.
-
-    🔒 MODE PENGUNCIAN OTOMATIS (WAJIB & PERMANEN):
-    - Analisis Visual: Jenis produk, proporsi, warna (HEX-consistent), material digital (glossy screen, metal finish), detail UI.
-    - Identitas Terkunci: DILARANG mengubah bentuk atau reinterpretasi. Hasil visual HARUS 100% konsisten dengan produk asli.
+    🔒 IDENTITY LOCK PROTOCOL:
+    1. Product Precision: Amati detail produk. Video prompt HARUS spesifik menyebutkan brand/tekstur produk.
+    2. Affiliate Acting: Jika gaya adalah 'Unboxing', fokus pada gerakan tangan membuka kemasan. Jika 'Talking Head', fokus pada ekspresi wajah dan eye contact.
+    3. Cinematic Flow: Gunakan keyword: "8k", "photorealistic", "fluid motion", "consistent identity".
 
     OUTPUT STRUCTURE:
-    - Summary: Product details based on locked digital specs.
-    - Caption: High-speed viral caption for TikTok/IG.
-    - Assets: 4 angles (Lifestyle, Clean, Detail, Problem-Solution).
-    - VideoPrompts: "Cinematic product video based on the provided image. Preserve exact product and model identity. No morphing, no redesign. Scene: Smooth slow dolly in. Product centered and unchanged. Motion: Soft natural motion only. Lighting: Soft cinematic lighting. Highlight real texture and material. Style: Ultra-realistic commercial look. No text, no watermark, no logo. Duration: 5–7 seconds. Aspect Ratio: 9:16 vertical. Quality: High detail, realistic physics."
+    - summary: Ringkasan strategi.
+    - caption: Caption viral.
+    - assets: Array berisi ${numScenes} item (label, imagePrompt, videoPrompt).
   `;
+
+  const parts: any[] = [
+    { text: `Produk: ${productName}. Gaya: ${style}. Scene Count: ${numScenes}. Instruksi: ${customInstructions}.` }
+  ];
+
+  if (productImg) parts.push({ inlineData: { mimeType: "image/png", data: productImg.split(',')[1] } });
+  if (modelImg) parts.push({ inlineData: { mimeType: "image/png", data: modelImg.split(',')[1] } });
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
-    contents: `[TURBO MODE] Analisis & Kunci Produk Digital: ${productName}. Instruksi: ${customInstructions}`,
+    contents: { parts },
     config: {
       systemInstruction,
       responseMimeType: "application/json",
@@ -117,7 +129,8 @@ export const generateAffiliateContent = async (productName: string, customInstru
                 label: { type: Type.STRING },
                 imagePrompt: { type: Type.STRING },
                 videoPrompt: { type: Type.STRING }
-              }
+              },
+              required: ['label', 'imagePrompt', 'videoPrompt']
             }
           }
         },
@@ -129,15 +142,26 @@ export const generateAffiliateContent = async (productName: string, customInstru
   return JSON.parse(response.text || '{}');
 };
 
-export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "1:1"): Promise<string> => {
+export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "1:1", referenceImg?: string): Promise<string> => {
+  const parts: any[] = [{ text: `High quality cinematic photo, strictly follow the visual identity of the attached image. ${prompt}` }];
+  
+  if (referenceImg) {
+    parts.push({
+      inlineData: {
+        mimeType: "image/png",
+        data: referenceImg.split(',')[1]
+      }
+    });
+  }
+
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',
-    contents: { parts: [{ text: prompt }] },
+    contents: { parts },
     config: { imageConfig: { aspectRatio } },
   });
 
-  const parts = response.candidates?.[0]?.content?.parts || [];
-  for (const part of parts) {
+  const responseParts = response.candidates?.[0]?.content?.parts || [];
+  for (const part of responseParts) {
     if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
   }
   throw new Error("Gagal generate gambar.");
