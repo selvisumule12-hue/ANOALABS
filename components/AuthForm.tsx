@@ -29,6 +29,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
       return showAlert('email tidak terdeteksi coba masukan email dengan benar');
     }
 
+    if (password.length < 6) {
+      return showAlert('Sandi harus lebih dari 5 digit');
+    }
+
     const users = JSON.parse(localStorage.getItem('anoalabs_users') || '[]');
     if (users.find((u: any) => u.email.toLowerCase() === email.toLowerCase())) {
       return showAlert('Email sudah terdaftar, silakan gunakan email lain');
@@ -46,6 +50,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
     
     if (!validateGmail(email)) {
       return showAlert('email tidak terdeteksi coba masukan email dengan benar');
+    }
+
+    if (password.length < 6) {
+      return showAlert('Sandi harus lebih dari 5 digit');
     }
 
     const users = JSON.parse(localStorage.getItem('anoalabs_users') || '[]');
@@ -108,7 +116,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
               <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-black/30 group-focus-within:text-black transition-colors"></i>
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Password (Min. 6 digit)"
                 className="w-full bg-neutral-900 border border-black/5 rounded-xl pl-12 pr-4 py-4 text-white font-medium placeholder:text-white/20 focus:outline-none focus:border-black/20 transition-all shadow-inner"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
