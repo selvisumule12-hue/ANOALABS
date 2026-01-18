@@ -8,7 +8,7 @@ interface AuthFormProps {
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [alert, setAlert] = useState<{ type: 'error' | 'success', message: string } | null>(null);
 
@@ -17,16 +17,24 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
     setTimeout(() => setAlert(null), 4000);
   };
 
+  const validateGmail = (email: string) => {
+    return email.toLowerCase().endsWith('@gmail.com');
+  };
+
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) return showAlert('Harap isi semua bidang');
-
-    const users = JSON.parse(localStorage.getItem('anoalabs_users') || '[]');
-    if (users.find((u: any) => u.username === username)) {
-      return showAlert('Username sudah terdaftar');
+    if (!email || !password) return showAlert('Harap isi semua bidang');
+    
+    if (!validateGmail(email)) {
+      return showAlert('email tidak terdeteksi coba masukan email dengan benar');
     }
 
-    users.push({ username, password });
+    const users = JSON.parse(localStorage.getItem('anoalabs_users') || '[]');
+    if (users.find((u: any) => u.email.toLowerCase() === email.toLowerCase())) {
+      return showAlert('Email sudah terdaftar, silakan gunakan email lain');
+    }
+
+    users.push({ email, password });
     localStorage.setItem('anoalabs_users', JSON.stringify(users));
     showAlert('Akun berhasil dibuat! Silahkan login.', 'success');
     setMode('login');
@@ -35,11 +43,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateGmail(email)) {
+      return showAlert('email tidak terdeteksi coba masukan email dengan benar');
+    }
+
     const users = JSON.parse(localStorage.getItem('anoalabs_users') || '[]');
-    const user = users.find((u: any) => u.username === username);
+    const user = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
 
     if (!user) {
-      return showAlert('silahkan buat akun terlebih dahulu');
+      return showAlert('Email belum terdaftar, silakan buat akun terlebih dahulu');
     }
 
     if (user.password !== password) {
@@ -76,15 +89,15 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
       <div className="glass-effect p-8 rounded-[2rem] colorful-border shadow-2xl relative overflow-hidden">
         <form onSubmit={mode === 'login' ? handleLogin : handleRegister} className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-black ml-1">Username</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-black ml-1">Email (@gmail.com)</label>
             <div className="relative group">
-              <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-black/30 group-focus-within:text-black transition-colors"></i>
+              <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-black/30 group-focus-within:text-black transition-colors"></i>
               <input
-                type="text"
-                placeholder="Username"
+                type="email"
+                placeholder="emailanda@gmail.com"
                 className="w-full bg-neutral-900 border border-black/5 rounded-xl pl-12 pr-4 py-4 text-white font-medium placeholder:text-white/20 focus:outline-none focus:border-black/20 transition-all shadow-inner"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -126,7 +139,10 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
             {mode === 'login' ? 'Belum punya akses?' : 'Sudah punya akun?'}
           </p>
           <button 
-            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+            onClick={() => {
+              setMode(mode === 'login' ? 'register' : 'login');
+              setAlert(null);
+            }}
             className="text-black hover:underline font-black text-[10px] uppercase tracking-[0.2em] transition-colors pb-1"
           >
             {mode === 'login' ? 'Buat Akun Baru' : 'Login ke Akun'}
