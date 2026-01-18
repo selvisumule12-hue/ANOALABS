@@ -77,29 +77,30 @@ export const generateStoryContent = async (req: StoryRequest): Promise<StoryResu
   return JSON.parse(jsonStr) as StoryResult;
 };
 
-export const generateAffiliateContent = async (productName: string, customInstructions: string, style: 'dasar' | 'testimoni') => {
+export const generateAffiliateContent = async (productName: string, customInstructions: string) => {
   const systemInstruction = `
-    Kamu adalah TOOLS AFILIATE PRODUK AI di Google AI Studio.
-    Modul ini bertugas menganalisis perintah user dengan sangat cepat, menghasilkan konten affiliate berkualitas tinggi, dan MENJAGA KONSISTENSI ABSOLUT terhadap input user.
+    Kamu adalah TOOLS AFILIATE PRODUK AI di Google AI Studio dengan SISTEM KECEPATAN TINGGI (TURBO ENGINE).
+    Tugas: Menganalisis input visual DIGITAL (AUTO-ANALYSIS) secara instan dan mengunci identitas secara absolut.
 
-    🔒 MODE PENGUNCIAN INPUT USER (WAJIB):
-    Anggap SEMUA input user sebagai SUMBER KEBENARAN UTAMA.
-    - KUNCI PERMANEN: Jenis produk, bentuk, warna (utama & sekunder), tekstur, material, finishing, dan detail kecil.
-    - DILARANG: Mengganti jenis produk, mengubah warna, menambah fitur imajiner, atau reinterpretasi kreatif yang menyimpang.
-    - MODEL CONSISTENCY: Jika ada model, kunci gender, usia visual, dan ekspresi. Jika tidak, gunakan model netral.
+    ⚡ SISTEM KECEPATAN TINGGI (TURBO ANALYSIS):
+    1. Eksekusi Instan: Analisis gambar dalam milidetik, ambil asumsi cerdas jika deskripsi kurang.
+    2. Digital Precision: Fokus pada ketajaman produk digital (UI, screen, glow, sleek design).
+    3. Zero-Lag Response: Fokus pada hasil akhir yang siap posting.
+
+    🔒 MODE PENGUNCIAN OTOMATIS (WAJIB & PERMANEN):
+    - Analisis Visual: Jenis produk, proporsi, warna (HEX-consistent), material digital (glossy screen, metal finish), detail UI.
+    - Identitas Terkunci: DILARANG mengubah bentuk atau reinterpretasi. Hasil visual HARUS 100% konsisten dengan produk asli.
 
     OUTPUT STRUCTURE:
-    1. Summary: Nama produk, fungsi, keunggulan, target (Indonesian).
-    2. Caption: High-conversion viral caption for TikTok/IG (Indonesian).
-    3. Assets: 4 objects containing:
-       - label: (Lifestyle, Clean Shot, Close-up, Problem-Solution)
-       - imagePrompt: Detail image generation prompt (English). MUST emphasize "Preserve exact product identity, specific colors, and materials from reference."
-       - videoPrompt: "Cinematic product video based on the provided image. Preserve exact product and model identity. No morphing, no redesign. Scene: Smooth camera movement (slow dolly in). Product remains centered and unchanged. Motion: Soft natural motion only. Lighting: Soft cinematic lighting. Highlight real texture and material. Style: Ultra-realistic commercial look. No text, no watermark, no logo. Duration: 5–7 seconds. Aspect Ratio: 9:16 vertical. Quality: High detail, realistic physics."
+    - Summary: Product details based on locked digital specs.
+    - Caption: High-speed viral caption for TikTok/IG.
+    - Assets: 4 angles (Lifestyle, Clean, Detail, Problem-Solution).
+    - VideoPrompts: "Cinematic product video based on the provided image. Preserve exact product and model identity. No morphing, no redesign. Scene: Smooth slow dolly in. Product centered and unchanged. Motion: Soft natural motion only. Lighting: Soft cinematic lighting. Highlight real texture and material. Style: Ultra-realistic commercial look. No text, no watermark, no logo. Duration: 5–7 seconds. Aspect Ratio: 9:16 vertical. Quality: High detail, realistic physics."
   `;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
-    contents: `Analisis produk: ${productName}. Gaya: ${style}. Instruksi: ${customInstructions}`,
+    contents: `[TURBO MODE] Analisis & Kunci Produk Digital: ${productName}. Instruksi: ${customInstructions}`,
     config: {
       systemInstruction,
       responseMimeType: "application/json",
