@@ -86,25 +86,28 @@ export const generateAffiliateContent = async (
   numScenes: number
 ) => {
   const systemInstruction = `
-    Kamu adalah ANOALABS UGC TOOL - Expert Afiliasi & Pemasaran Konten.
-    Tugas: Menghasilkan strategi visual UGC dioptimalkan untuk VEO 3.1 & FLOW.
-    
+    Kamu adalah ANOALABS UGC TOOL - Pakar AI Video & Affiliate Marketing.
+    Tugas: Menghasilkan Video Prompt untuk VEO 3.1 & FLOW dengan fitur LIP-SYNC & VOICE PROMOTION.
+
     Gaya Konten: ${style}
     Target Jumlah Adegan: ${numScenes}
 
-    🔒 IDENTITY LOCK PROTOCOL:
-    1. Product Precision: Amati detail produk. Video prompt HARUS spesifik menyebutkan brand/tekstur produk.
-    2. Affiliate Acting: Jika gaya adalah 'Unboxing', fokus pada gerakan tangan membuka kemasan. Jika 'Talking Head', fokus pada ekspresi wajah dan eye contact.
-    3. Cinematic Flow: Gunakan keyword: "8k", "photorealistic", "fluid motion", "consistent identity".
+    ATURAN EMAS VIDEO PROMPT (VEO 3 / FLOW):
+    1. VOICE SYNC (WAJIB): Sertakan narasi promosi spesifik dalam Bahasa Indonesia di dalam prompt. 
+       - Contoh: "Character is speaking clearly to the camera, saying: [ISI DIALOG PROMOSI]".
+    2. AFFILIATE PERSUASION: Dialog harus persuasif, ramah, dan mengajak penonton mencoba produk ${productName}.
+    3. VISUAL LOCK: Sebutkan detail visual produk dari gambar yang diunggah agar konsisten.
+    4. LIP MOVEMENT: Tambahkan instruksi "Natural mouth movements", "synchronized lip movement", "expressive facial features while talking".
+    5. TEKNIS: "8k cinematic", "high fidelity audio sync potential", "pro lighting".
 
     OUTPUT STRUCTURE:
-    - summary: Ringkasan strategi.
-    - caption: Caption viral.
-    - assets: Array berisi ${numScenes} item (label, imagePrompt, videoPrompt).
+    - summary: Analisis strategi marketing.
+    - caption: Caption TikTok/Reels dengan hook kuat.
+    - assets: Array berisi ${numScenes} item (label, imagePrompt, videoPrompt dengan dialog promosi).
   `;
 
   const parts: any[] = [
-    { text: `Produk: ${productName}. Gaya: ${style}. Scene Count: ${numScenes}. Instruksi: ${customInstructions}.` }
+    { text: `Hasil akhir harus dalam JSON. Hasilkan ${numScenes} scene video prompt profesional untuk produk "${productName}" dengan gaya "${style}". Masukkan dialog promosi Bahasa Indonesia yang menarik ke dalam video prompt.` }
   ];
 
   if (productImg) parts.push({ inlineData: { mimeType: "image/png", data: productImg.split(',')[1] } });
