@@ -8,50 +8,21 @@ export const generateStoryContent = async (req: StoryRequest): Promise<StoryResu
   const { title, numScenes, visualStyle, language } = req;
 
   const systemInstruction = `
-    You are ANOALABS ULTIMATE v4, a professional cinematic storytelling architect.
+    You are PIKHACU.AI ULTIMATE v4, a professional cinematic storytelling architect.
     
     BRAIN RULES:
     1. NARRATION (STRICT 10-SECOND LIMIT):
        - MUST be educational, dense, and meaningful.
-       - Each narration MUST be short enough to be read in 10 seconds or less.
-       - LIMIT: Approximately 20-25 words (150-180 characters) per scene.
-       - ONLY Scene 1 MUST start with: "Apakah kamu tahu..." (ID) or "Did you know..." (EN).
-       - Ensure every sentence is high-impact and straightforward.
+       - LIMIT: ~20-25 words per scene.
     
-    2. DUAL STRUCTURED PROMPTING (CRITICAL):
-       - For EACH scene, you MUST generate TWO distinct structured prompts ('structuredPrompt1' and 'structuredPrompt2').
-       - 'structuredPrompt1': The primary setup shot, establishing the scene.
-       - 'structuredPrompt2': A secondary angle, a close-up, or a logical progression of the action to provide variety for video editors.
-       
-       PROMPT COMPONENTS:
-       - 'subject': Detailed character/object description. Keep features IDENTICAL across all scenes for consistency.
-       - 'action': Specific physical movement or expression optimized for Video AI.
-       - 'environment': Setting details, background facts.
-       - 'camera_movement': Cinematic camera terms (Dolly In, Pan, Orbit, Drone Shot).
-       - 'lighting': Atmospheric lighting (Golden hour, Cyberpunk neon, Soft cinematic rim light).
-       - 'visual_style_tags': Keywords specific to the chosen visual style.
-         (Examples:
-          'Animasi 2D': flat colors, cel shaded, line art.
-          'Animasi 3D': Pixar-style, highly detailed textures, PBR.
-          'Realistis': photorealistic, hyper-detailed, 8k, cinematic film.
-          'Soft Clay-Infused Pixar-Style 3D': highly stylized 3D characters with a soft tactile feel, smooth stylized surfaces, subtle organic clay textures and fingerprints, warm vibrant colors, highly expressive facial features, cinematic subsurface scattering, soft professional studio lighting, dreamy and polished look.
-          '1980s 35mm Film Documentary Style': vintage film grain, 35mm lens, muted retro colors, analog textures, National Geographic aesthetic, soft focus, historical documentary look.)
+    2. DUAL STRUCTURED PROMPTING:
+       - Generate TWO distinct structured prompts per scene.
+       - Every 'subject' MUST start with: "${visualStyle}".
 
-    3. OUTPUT FORMAT:
-       - Strict JSON output following the provided schema.
-       - Include TikTok Cover (9:16) and YouTube Cover (16:9) prompts.
-       - Generate 5 specific hashtags: #TahuGakSih, #[VisualStyle]Story, #[Language]Edition, #[Topic], #EdukasiViral.
+    3. OUTPUT FORMAT: Strict JSON.
   `;
 
-  const prompt = `
-    Generate a high-quality cinematic storytelling script with TWO PROMPTS PER SCENE. 
-    IMPORTANT: Every scene's narration MUST NOT exceed 10 seconds of speaking time (max 25 words).
-    
-    Title: "${title}"
-    Total Scenes: ${numScenes}
-    Visual Aesthetic: ${visualStyle}
-    Narration Language: ${language}
-  `;
+  const prompt = `Generate a high-quality cinematic storytelling script. Style: "${visualStyle}". Title: "${title}". Scenes: ${numScenes}. Language: ${language}`;
 
   const structuredPromptSchema = {
     type: Type.OBJECT,
@@ -95,38 +66,78 @@ export const generateStoryContent = async (req: StoryRequest): Promise<StoryResu
           },
           tiktokCover: { type: Type.STRING },
           youtubeCover: { type: Type.STRING },
-          hashtags: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING }
-          }
+          hashtags: { type: Type.ARRAY, items: { type: Type.STRING } }
         },
         required: ['title', 'numScenes', 'visualStyle', 'language', 'scenes', 'tiktokCover', 'youtubeCover', 'hashtags']
       }
     }
   });
 
-  const result = JSON.parse(response.text || '{}');
-  return result as StoryResult;
+  const jsonStr = response.text || '{}';
+  return JSON.parse(jsonStr) as StoryResult;
 };
 
-export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "16:9"): Promise<string> => {
-  const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const response = await genAI.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: {
-      parts: [{ text: prompt }],
-    },
+export const generateAffiliateContent = async (productName: string, customInstructions: string, style: 'dasar' | 'testimoni') => {
+  const systemInstruction = `
+    Kamu adalah TOOLS AFILIATE PRODUK AI di Google AI Studio.
+    Modul ini bertugas menganalisis perintah user dengan sangat cepat, menghasilkan konten affiliate berkualitas tinggi, dan MENJAGA KONSISTENSI ABSOLUT terhadap input user.
+
+    🔒 MODE PENGUNCIAN INPUT USER (WAJIB):
+    Anggap SEMUA input user sebagai SUMBER KEBENARAN UTAMA.
+    - KUNCI PERMANEN: Jenis produk, bentuk, warna (utama & sekunder), tekstur, material, finishing, dan detail kecil.
+    - DILARANG: Mengganti jenis produk, mengubah warna, menambah fitur imajiner, atau reinterpretasi kreatif yang menyimpang.
+    - MODEL CONSISTENCY: Jika ada model, kunci gender, usia visual, dan ekspresi. Jika tidak, gunakan model netral.
+
+    OUTPUT STRUCTURE:
+    1. Summary: Nama produk, fungsi, keunggulan, target (Indonesian).
+    2. Caption: High-conversion viral caption for TikTok/IG (Indonesian).
+    3. Assets: 4 objects containing:
+       - label: (Lifestyle, Clean Shot, Close-up, Problem-Solution)
+       - imagePrompt: Detail image generation prompt (English). MUST emphasize "Preserve exact product identity, specific colors, and materials from reference."
+       - videoPrompt: "Cinematic product video based on the provided image. Preserve exact product and model identity. No morphing, no redesign. Scene: Smooth camera movement (slow dolly in). Product remains centered and unchanged. Motion: Soft natural motion only. Lighting: Soft cinematic lighting. Highlight real texture and material. Style: Ultra-realistic commercial look. No text, no watermark, no logo. Duration: 5–7 seconds. Aspect Ratio: 9:16 vertical. Quality: High detail, realistic physics."
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-preview',
+    contents: `Analisis produk: ${productName}. Gaya: ${style}. Instruksi: ${customInstructions}`,
     config: {
-      imageConfig: {
-        aspectRatio: aspectRatio,
-      },
-    },
+      systemInstruction,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          summary: { type: Type.STRING },
+          caption: { type: Type.STRING },
+          assets: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                label: { type: Type.STRING },
+                imagePrompt: { type: Type.STRING },
+                videoPrompt: { type: Type.STRING }
+              }
+            }
+          }
+        },
+        required: ['summary', 'caption', 'assets']
+      }
+    }
   });
 
-  for (const part of response.candidates[0].content.parts) {
-    if (part.inlineData) {
-      return `data:image/png;base64,${part.inlineData.data}`;
-    }
+  return JSON.parse(response.text || '{}');
+};
+
+export const generateImage = async (prompt: string, aspectRatio: "1:1" | "3:4" | "4:3" | "9:16" | "16:9" = "1:1"): Promise<string> => {
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: { parts: [{ text: prompt }] },
+    config: { imageConfig: { aspectRatio } },
+  });
+
+  const parts = response.candidates?.[0]?.content?.parts || [];
+  for (const part of parts) {
+    if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
   }
-  throw new Error("Gagal mendapatkan data gambar dari API.");
+  throw new Error("Gagal generate gambar.");
 };

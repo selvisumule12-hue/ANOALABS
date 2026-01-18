@@ -4,13 +4,13 @@ import { StoryForm } from './components/StoryForm';
 import { StoryDisplay } from './components/StoryDisplay';
 import { AuthForm } from './components/AuthForm';
 import { Dashboard } from './components/Dashboard';
+import { AffiliateModule } from './components/AffiliateModule';
 import { APP_CONFIG } from './constants';
 import { StoryRequest, StoryResult } from './types';
 import { generateStoryContent } from './services/geminiService';
 
-const AnoaLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+const PikhacuLogo = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Stylized Anoa/Bull Logo based on the provided image */}
     <circle cx="50" cy="50" r="40" stroke="black" strokeWidth="6" fill="transparent" />
     <path 
       d="M20 35C25 25 35 20 50 20C65 20 75 25 80 35C75 45 65 50 50 50C35 50 25 45 20 35Z" 
@@ -86,12 +86,11 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-20 selection:bg-black selection:text-white">
-      {/* Navbar / Header */}
       <header className="sticky top-0 z-50 glass-effect border-b border-black/5 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={isLoggedIn ? resetToDashboard : undefined}>
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white border border-black/10 rounded-xl md:rounded-2xl flex items-center justify-center text-black shadow-lg transition-transform hover:scale-105 active:scale-95">
-              <AnoaLogo className="w-8 h-8 md:w-10 md:h-10" />
+              <PikhacuLogo className="w-8 h-8 md:w-10 md:h-10" />
             </div>
             <div>
               <h1 className="font-bebas text-2xl md:text-3xl tracking-widest colorful-text leading-none uppercase">{APP_CONFIG.NAME}</h1>
@@ -132,10 +131,10 @@ const App: React.FC = () => {
                 <i className="fa-solid fa-arrow-left"></i> Dashboard
               </button>
               <h2 className="text-4xl md:text-6xl font-bebas tracking-tighter text-black">
-                TOOLS <span className="colorful-text">ANOALABS STORY</span>
+                TOOLS <span className="colorful-text">PIKHACU STORY</span>
               </h2>
               <p className="text-black/60 max-w-xl mx-auto text-sm leading-relaxed font-semibold">
-                Hasilkan narasi edukatif sinematik dengan visual Soft Clay Pixar Style.
+                Generate unlimited educational cinematic stories optimized for TikTok & Reels.
               </p>
             </section>
             
@@ -158,34 +157,21 @@ const App: React.FC = () => {
         )}
 
         {view === 'affiliate' && (
-          <div className="text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
              <button 
                 onClick={resetToDashboard}
                 className="bg-black border border-black/10 px-6 py-2 rounded-full text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 mx-auto hover:bg-neutral-900 transition-all"
               >
-                <i className="fa-solid fa-arrow-left"></i> Dashboard
+                <i className="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
               </button>
-            <div className="py-20 glass-effect rounded-3xl border border-black/5 space-y-6 colorful-border">
-              <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto border border-blue-500/20">
-                <i className="fa-solid fa-bag-shopping text-3xl text-blue-600"></i>
-              </div>
-              <h2 className="text-4xl font-bebas tracking-widest text-black uppercase">TOOLS AFILIATE PRODUK</h2>
-              <p className="text-black/50 max-w-md mx-auto italic px-6 font-semibold">
-                "Modul ini sedang dalam pengembangan untuk optimasi konten promosi produk affiliate secara otomatis."
-              </p>
-              <div className="flex justify-center">
-                <span className="px-4 py-2 bg-black border border-black/10 rounded-full text-[10px] font-bold text-white uppercase tracking-[0.3em]">
-                  Coming Soon v4.5
-                </span>
-              </div>
-            </div>
+              <AffiliateModule />
           </div>
         )}
       </main>
 
       <footer className="mt-20 py-10 border-t border-black/5 text-center">
         <p className="text-black/30 text-[10px] uppercase tracking-widest font-black">
-          © {new Date().getFullYear()} {APP_CONFIG.NAME} • POWERED BY GEMINI ENGINE
+          © {new Date().getFullYear()} {APP_CONFIG.NAME} • UNLIMITED CINEMATIC ENGINE
         </p>
       </footer>
     </div>
